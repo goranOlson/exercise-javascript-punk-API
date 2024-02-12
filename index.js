@@ -5,7 +5,8 @@ const mainProduct = document.getElementById('main-product');
 
 const display = document.getElementById('display');
 
-
+const moreButton = document.querySelector(".display button");
+moreButton.addEventListener('click', displayRandom);
 
 const targetList = getTarget();
  console.log('targetList:', targetList);
@@ -44,19 +45,20 @@ async function displayRandom() {
         const imagePath = (product.image_url) ? product.image_url : '';
          
         const article = `
-            <article id="main-product" class="card">
+            
                 <img src="${imagePath}" alt="${product.name}">
                 <div class="card-content">
                     <h4 title="${product.name}">${product.name}</h4> 
                     <p>${product.tagline}</p> 
-                    <p>${product.abv} alcohol</p> 
+                    <p>${product.abv}% alcohol</p> 
                     <p>
                         <a href="index.html?prod=${product.id}">Se More <i class="fas fa-play"></i></a>
                     </p>
                 </div>
-            </article>`;
+            
+            `;
 
-        display.innerHTML = article;
+        display.children[0].innerHTML = article;
         
     } catch (error) {
         console.error('Error: ', error);
