@@ -1,0 +1,131 @@
+* {
+    margin: 0;
+    box-sizing: border-box;
+    font-size: 18px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color: #fcfc34;
+}
+
+
+.page-header {
+    height: 50px;
+    display: grid;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #444;
+}
+
+.page-header .inner {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    max-width: 1000px;
+    margin-inline: auto;
+    padding: 8px 16px;
+    /* background-color: #aaa; */
+
+    color: #e8e802;
+}
+
+.page-header .inner ul {
+    display: flex;
+    column-gap: 20px;
+    list-style-type: none;
+}
+
+
+
+
+
+.page-main {
+    height: calc(100vh - 50px);
+    background-color: lightyellow;
+}
+.page-main .top {
+    display: grid;
+    justify-content: center;
+    padding-top: 30px
+}
+.page-main h1 {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.page-main .slogan {
+    font-size: 20px;
+    font-style: italic;
+}
+
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    width: 100%;
+    min-width: 280px;
+    max-width: 60%;
+    margin-block: 50px;
+    margin-inline: auto;
+
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-inline: auto;
+
+    background-color: #fff;
+}
+  
+.card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.card img {
+    height: 400px;
+    margin-block: 26px;
+}
+  
+.card .card-content {
+    width: 100%;
+    padding: 2px 16px;
+    background-color: black;
+    color: whitesmoke;
+    padding-bottom: 8px;
+}
+
+.card h4 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-block: 8px;
+}
+
+.card p {
+    padding-block: 4px;
+}
+.card p:last-of-type {  /* Se more link */
+    display: flex;
+    justify-content: flex-end;
+}
+
+.card p:last-of-type a {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: max-content;
+    color: yellow;
+    color: #f5f57c;
+}
+.card p:last-of-type a:hover {
+    color: yellow;
+}
+
+.card p:last-of-type a i {
+    margin-left: 8px;
+    font-size: 8px;
+}
+
+
+
