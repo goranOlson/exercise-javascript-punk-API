@@ -133,6 +133,17 @@ a {
     font-size: 8px;
 }
 
+.card h5 {
+    padding-bottom: 2px;
+    font-weight: normal;
+    border-bottom: 1px solid whitesmoke;
+}
+
+.card div.spread {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
 .display button {
     width: max-content;
