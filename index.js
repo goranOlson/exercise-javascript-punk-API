@@ -9,16 +9,21 @@ const moreButton = document.querySelector(".display button");
 moreButton.addEventListener('click', moreClick);
 
 const targetList = getTarget();
-// console.log('targetList:', targetList);
+ console.log('targetList:', targetList);
 
 const target = (targetList) ? targetList[0] : '';  // Ex: ['prod', '280']
 // console.log(`target: ${target}`);
 
+
+// page = '' || prod | search
+
 switch (target) {
-    case 'prod':
+    case 'prod':  // prod=280
         importProduct(targetList[1]);
         break;
-
+    case 'search':  // search='Something'
+        displaySearch();
+        break;
     default:
         // console.log('No target...');
         importProduct();
@@ -147,6 +152,18 @@ function displayProduct(product, prodId = 0) {
     }
 }
 
+function displaySearch() {
+    console.log('displaySearch()');
+    console.log('targetList: ', targetList);
+
+    if (targetList) { // S
+        
+    }
+    else {
+
+    }
+}
+
 function extractObjectNames(arr) {
     // array wit objects
     // const arr = student.subjects.map( (s) => s.name);
@@ -164,13 +181,13 @@ function getTarget() {  // : array | undefined
     let arr;
 
     let url = window.location.href;
-    // console.log(`url: ${url}`);
+     console.log(`url: ${url}`);
 
     const pos = url.indexOf('?');
 
     if (pos >= 0) {
         let args = url.substring(pos + 1);  // => prod=99
-        arr = args.split('=');
+        arr = args.split('=');  // 
         // console.log(`arr: ${arr}`);
     }
 
