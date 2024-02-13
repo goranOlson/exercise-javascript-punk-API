@@ -130,6 +130,7 @@ a {
 #main-product p {
     padding-block: 4px;
 }
+
 #main-product p:last-of-type {  /* Se more link */
     display: flex;
     justify-content: flex-end;
@@ -143,6 +144,7 @@ a {
     color: yellow;
     color: #f5f57c;
 }
+
 #main-product p:last-of-type a:hover {
     color: yellow;
 }
@@ -173,14 +175,11 @@ a {
     color: #ddd;
 }
 
-
 #main-product h5 {
     padding-bottom: 2px;
     font-weight: normal;
     border-bottom: 1px solid whitesmoke;
 }
-
-
 
 #main-product div.spread {
     display: flex;
@@ -204,6 +203,91 @@ a {
     background-color: #ecec26;
     cursor: pointer;
 }
+
+/*#####################################*/
+#search {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: 40px auto auto;
+    height: 100%;
+
+    width: 80%;
+    margin-inline: auto;
+
+    display: none;
+    /* background-color: #aaa; */
+}
+#search.show {
+    display: grid;
+}
+
+#search h1 {
+    text-align: center;
+}
+
+#search .form-container {
+    display: grid;
+    grid-template-columns: auto max-content;
+    grid-template-rows: auto;
+    margin-top: 30px;
+}
+
+#search .form-container input {
+    width: 100%;
+    padding: 4px 8px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border: 1px solid #c3c303;
+}
+
+#search .form-container button {
+    background-color: yellow;
+    border: 0px solid yellow;
+
+    background: #f4f402;
+    border: 1px solid #dbdb02;
+
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+
+    height: 100%;
+}
+
+#search .search-results {
+    display: grid;
+    grid-template-columns: auto;
+    row-gap: 8px;
+
+    margin-block: 40px;
+}
+
+#search .search-results a {
+    /* display: block; */
+    /* width: 100%; */
+    padding-inline: 16px;
+    padding-block: 4px;
+
+    /* background-color: #ddd; */
+    background-color: #f4f402;
+    border-radius: 7px;
+    color: #222;
+}
+
+#search .search-navigation {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+    justify-content: center;
+    column-gap: 16px;
+
+    background-color: #aaa;
+}
+
+
+
+
+
+/*#####################################*/
 
 
 
@@ -231,7 +315,6 @@ a {
     .page-main .slogan {
         font-size: 30px;
     }
-
 
     #main-product {
         grid-template-columns: 1fr 1fr;

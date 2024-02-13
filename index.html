@@ -15,7 +15,7 @@
         <a href="index.html">
           Punk API
         </a>
-        <a href="#" style="display: none;">
+        <a href="index.html?search">
           <i class="fas fa-search"></i>
           <!-- <span>SEARCH</span> -->
         </a>
@@ -23,15 +23,42 @@
     </header>
 
     <main class="page-main">
+
       <div class="top">
         <h1>Punk API</h1>
         <div class="slogan">A beer project!</div>
       </div>
+
+<!-- -->
+      <section id="search" class="show">
+        <h1>Search Page</h1>
+
+        <form action="">
+          <div class="form-container">
+            <input type="text" name="search" placeholder="Search beer by name">
+            <button type="submit">Search</button>
+          </div>
+        </form>
+
+        <div class="search-results">
+          <a href="">Beer 1</a>
+          <a href="">Beer 2</a>
+          <a href="">Beer 3</a>
+        </div>
+
+        <div class="search-navigation">
+          <span> < Previous </span> <span>Next ></span>
+        </div>
+      </section>
+<!-- -->
+
       <!-- display-area -->
       <div id="display" class="display">
         <article id="main-product" class="card"></article>
         <button>See another beer...</button>
       </div>
+
+      
       <!-- end: display-area -->
     </main>
 
