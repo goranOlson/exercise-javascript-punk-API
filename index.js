@@ -9,15 +9,15 @@ const moreButton = document.querySelector(".display button");
 moreButton.addEventListener('click', importProduct);
 
 const targetList = getTarget();
- console.log('targetList:', targetList);
+// console.log('targetList:', targetList);
 if (targetList) {
-    console.log('got targetList');
+    // console.log('got targetList');
 }
 
 // 0: prod | name | page
 // 1: value
 const target = (targetList) ? targetList[0] : '';
- console.log(`target: ${target}`);
+// console.log(`target: ${target}`);
 switch (target) {
     case 'prod':
         importProduct(targetList[1]);
@@ -30,8 +30,7 @@ switch (target) {
 }
 
 async function importProduct(prodId = 0) {
-    // Random
-    console.log(`--> importProduct(${prodId})`);
+    // console.log(`--> importProduct(${prodId})`);
 
     let url;
 
@@ -41,6 +40,9 @@ async function importProduct(prodId = 0) {
     else {
         url = "https://api.punkapi.com/v2/beers/random";
     }
+
+    url = "https://api.punkapi.com/v2/beers/";
+    url += (prodId >= 1) ? prodId : "random";
 
     try {
         const response = await fetch(url);
@@ -56,36 +58,68 @@ async function importProduct(prodId = 0) {
 
 
 function displayProduct(product, prodId = 0) {
-    console.log(`--> displayProduct(product, ${prodId})`);
-    console.log('product:', product);
+    // console.log(`--> displayProduct(product, ${prodId})`);
+    // console.log('product:', product);
 
     let article;
     const imagePath = (product.image_url) ? product.image_url : '';
     
     if (prodId >= 1) {  // Show selected product
         const volume = product.volume.value + ' ' + product.volume.unit;
-         console.log('volume: ' + volume);
+        // console.log('volume: ' + volume);
 
         const alcohol = product.abv + "%";
 
+        const hops = extractObjectNames(product.ingredients.hops);
+        // console.log('hops', hops.join(', '));
 
+        const ingredients = Object.keys(product.ingredients);
+        // console.log('ingredients: ', ingredients);
+        
+        const foodPairing = Object.values(product.food_pairing);
+        // console.log('foodPairing', foodPairing);
 
+        
+        
         article = `
-            <article id="main-product" class="card" style="height: max-content">
+            <article id="main-product" class="card product" style="height: max-content">
                 <img src="${imagePath}" alt="${product.name}">
                 <div class="card-content">
                     <h4 title="${product.name}">${product.name}</h4> 
-                    <div>
-                        <h5>Description</h5>
-                        <p>${product.description}</p>
+
+                    <div class="list">
+                        <div>
+                            ${product.description}
+                        </div>
+
+                        
+
+                        <div>
+                            Ingredients: ${ingredients.join(', ')}
+                        </div>
+
+                        <div>
+                            Hops: ${hops.join(', ')}
+                        </div>
+
+                        <div>
+                            Food pairing: ${foodPairing.join(',')}
+                        </div>
+
+                        <div>
+                            Brewers tips: ${product.brewers_tips}
+                        </div>
+
+                        <div class="spread">
+                            <span>Alcohol by volume</span>
+                            <span>${product.abv}%</span>
+                        </div>
+
+                        <div class="spread">
+                            <span>Volume</span>
+                            <span>${volume}</span>
+                        </div>
                     </div>
-
-                    <div class="spread">
-                        <span>${product.abv}% alcohol</span>
-                        <span>${volume}</span>
-                    </div>
-
-
                 </div>
             </article>
         `;
@@ -115,6 +149,12 @@ function displayProduct(product, prodId = 0) {
 
 
 
+function extractObjectNames(arr) {
+    // array wit objects
+    // const arr = student.subjects.map( (s) => s.name);
+    const newArr = arr.map( (o) => o.name );
+    return newArr;
+}
 
 
 function getTarget() {  // : array | undefined
