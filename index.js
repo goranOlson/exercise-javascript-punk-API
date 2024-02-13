@@ -6,18 +6,14 @@ const mainProduct = document.getElementById('main-product');
 const display = document.getElementById('display');
 
 const moreButton = document.querySelector(".display button");
-moreButton.addEventListener('click', importProduct);
+moreButton.addEventListener('click', moreClick);
 
 const targetList = getTarget();
 // console.log('targetList:', targetList);
-if (targetList) {
-    // console.log('got targetList');
-}
 
-// 0: prod | name | page
-// 1: value
-const target = (targetList) ? targetList[0] : '';
+const target = (targetList) ? targetList[0] : '';  // Ex: ['prod', '280']
 // console.log(`target: ${target}`);
+
 switch (target) {
     case 'prod':
         importProduct(targetList[1]);
@@ -29,42 +25,67 @@ switch (target) {
         break;
 }
 
+function moreClick() {
+    window.location.assign("index.html");
+}
+
 async function importProduct(prodId = 0) {
     // console.log(`--> importProduct(${prodId})`);
 
-    let url;
-
-    if (prodId >= 1) {
-        url = "https://api.punkapi.com/v2/beers/" + prodId;
-    }
-    else {
-        url = "https://api.punkapi.com/v2/beers/random";
-    }
-
-    url = "https://api.punkapi.com/v2/beers/";
+    // Ask for prodId or random
+    let url = "https://api.punkapi.com/v2/beers/";
     url += (prodId >= 1) ? prodId : "random";
+    // console.log('url: ' + url);
 
     try {
         const response = await fetch(url);
         const data = await response.json();
+        // console.log('Running prodId: ' + prodId);
 
-        displayProduct(data[0], prodId);
-
+        if (prodId > 0) {
+            displayProduct(data[0], prodId);
+        } else {
+            displayProductCard(data[0])
+        }
     } catch (error) {
         console.error('Error: ', error);
     }
 }
 
+function displayProductCard(product) {
+    // console.log(`--> displayProduct(product)`);
+    // console.log('product:', product);
 
+    // let article;
+    const imagePath = (product.image_url) ? product.image_url : '';
+        
+    // Show random
+    let article = `
+        <article id="main-product" class="card">
+            <img src="${imagePath}" alt="${product.name}">
+            <div class="card-content">
+                <h4 title="${product.name}">${product.name}</h4> 
+                <p>${product.tagline}</p> 
+                <p>${product.abv}% alcohol</p> 
+                <p>
+                    
+                    <a href="index.html?prod=${product.id}">Se More <i class="fas fa-play"></i></a>
+                </p>
+            </div>
+        </article>`;
+    
+    // Remove previous product and add new product
+    display.removeChild(display.children[0]);
+    display.insertAdjacentHTML('afterbegin', article);
+}
 
 function displayProduct(product, prodId = 0) {
     // console.log(`--> displayProduct(product, ${prodId})`);
     // console.log('product:', product);
-
-    let article;
-    const imagePath = (product.image_url) ? product.image_url : '';
     
     if (prodId >= 1) {  // Show selected product
+        const imagePath = (product.image_url) ? product.image_url : '';
+
         const volume = product.volume.value + ' ' + product.volume.unit;
         // console.log('volume: ' + volume);
 
@@ -79,10 +100,8 @@ function displayProduct(product, prodId = 0) {
         const foodPairing = Object.values(product.food_pairing);
         // console.log('foodPairing', foodPairing);
 
-        
-        
-        article = `
-            <article id="main-product" class="card product" style="height: max-content">
+        let article = `
+            <article id="main-product" class="product" style="height: max-content">
                 <img src="${imagePath}" alt="${product.name}">
                 <div class="card-content">
                     <h4 title="${product.name}">${product.name}</h4> 
@@ -91,63 +110,42 @@ function displayProduct(product, prodId = 0) {
                         <div>
                             ${product.description}
                         </div>
-
-                        
-
                         <div>
-                            Ingredients: ${ingredients.join(', ')}
+                            <div class="label">Ingredients:</div>
+                            ${ingredients.join(', ')}
                         </div>
-
                         <div>
-                            Hops: ${hops.join(', ')}
+                            <div class="label">Hops:</div>
+                             ${hops.join(', ')}
                         </div>
-
                         <div>
-                            Food pairing: ${foodPairing.join(',')}
+                            <div class="label">Food pairing:</div>
+                            ${foodPairing.join(',')}
                         </div>
-
                         <div>
-                            Brewers tips: ${product.brewers_tips}
+                            <div class="label">Brewers tips:</div>
+                            ${product.brewers_tips}
                         </div>
-
-                        <div class="spread">
-                            <span>Alcohol by volume</span>
-                            <span>${product.abv}%</span>
-                        </div>
-
-                        <div class="spread">
-                            <span>Volume</span>
-                            <span>${volume}</span>
+                        <div>
+                            <div class="label">Details:</div>
+                            <div class="spread">
+                                <span>Alcohol by volume</span>
+                                <span>${product.abv}%</span>
+                            </div>
+                            <div class="spread">
+                                <span>Volume</span>
+                                <span>${volume}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </article>
-        `;
+            </article>`;
+
+        // Remove previous product and add new product
+        display.removeChild(display.children[0]);
+        display.insertAdjacentHTML('afterbegin', article);
     }
-    else {  // Show random
-        article = `
-            <article id="main-product" class="card">
-                <img src="${imagePath}" alt="${product.name}">
-                <div class="card-content">
-                    <h4 title="${product.name}">${product.name}</h4> 
-                    <p>${product.tagline}</p> 
-                    <p>${product.abv}% alcohol</p> 
-                    <p>
-                        <a href="index.html?prod=${product.id}">Se More <i class="fas fa-play"></i></a>
-                    </p>
-                </div>
-            </article>
-        `;
-    }
-
-
-
-    // Remove previous product and add new product
-    display.removeChild(display.children[0]);
-    display.insertAdjacentHTML('afterbegin', article);
 }
-
-
 
 function extractObjectNames(arr) {
     // array wit objects
@@ -155,7 +153,6 @@ function extractObjectNames(arr) {
     const newArr = arr.map( (o) => o.name );
     return newArr;
 }
-
 
 function getTarget() {  // : array | undefined
     // console.log('--> getTarget()');
