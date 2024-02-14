@@ -7,15 +7,11 @@ const display = document.getElementById('display');
 
 
 
-const targetList = getTarget();
- console.log('targetList:', targetList);
-
-const target = (targetList) ? targetList[0] : '';  // Ex: ['prod', '280']
-// console.log(`target: ${target}`);
+// const sectionSearch = document.getElementById('#search');
 
 
 
-
+/* ###### Icons/logotype ###### */
 
 const logotype = document.getElementById('logotype');
 logotype.addEventListener('click', () => {
@@ -35,35 +31,31 @@ iconSearch.addEventListener('click', () => {
     displaySearch();
 });
 
-const moreButton = document.querySelector(".display button");
-moreButton.addEventListener('click', () => {
+
+// const seMoreButton = document.querySelector('#main-product a');
+// seMoreButton.addEventListener('click', (event) => {
+//     event.stopPropagation();
+//     console.log('seMoreButton');
+// });
+
+const randomButton = document.querySelector("#display > button");
+randomButton.addEventListener('click', () => {
     console.log('moreButton');
     importProduct();
 });
 
 
 
-// page = '' || prod | search
 
-// switch (target) {
-//     case 'prod':  // prod=280
-//         importProduct(targetList[1]);
-//         break;
-//     case 'search':  // search='Something'
-//         displaySearch();
-//         break;
-//     default:
-//         // console.log('No target...');
-//         importProduct();
-//         break;
-// }
+console.log('script start');
+importProduct();
 
 function moreClick() {
     window.location.assign("index.html");
 }
 
 async function importProduct(prodId = 0) {
-    // console.log(`--> importProduct(${prodId})`);
+     console.log(`--> importProduct(${prodId})`);
 
     // Ask for prodId or random
     let url = "https://api.punkapi.com/v2/beers/";
@@ -73,7 +65,7 @@ async function importProduct(prodId = 0) {
     try {
         const response = await fetch(url);
         const data = await response.json();
-        // console.log('Running prodId: ' + prodId);
+         console.log('Running prodId: ' + prodId);
 
         if (prodId > 0) {
             displayProduct(data[0], prodId);
@@ -86,15 +78,15 @@ async function importProduct(prodId = 0) {
 }
 
 function displayProductCard(product) {
-    // console.log(`--> displayProduct(product)`);
+     console.log(`--> displayProduct(product) => ${product.name}`);
     // console.log('product:', product);
 
     // let article;
     const imagePath = (product.image_url) ? product.image_url : '';
         
     // Show random
-    let article = `
-        <article id="main-product" class="card">
+    let articleInner = `
+        
             <img src="${imagePath}" alt="${product.name}">
             <div class="card-content">
                 <h4 title="${product.name}">${product.name}</h4> 
@@ -105,16 +97,28 @@ function displayProductCard(product) {
                     <a href="index.html?prod=${product.id}">Se More <i class="fas fa-play"></i></a>
                 </p>
             </div>
-        </article>`;
-    
-    // Remove previous product and add new product
-    display.removeChild(display.children[0]);
-    display.insertAdjacentHTML('afterbegin', article);
+        `;
+    console.log('article:', articleInner);
+     
+    mainProduct.innerHTML = articleInner;
+
+    scrollToTop();
+    closeOthers('main-product');
 }
 
+function scrollToTop() {
+    console.log('--> scrollToTop()');
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth',
+    });
+}
+
+
 function displayProduct(product, prodId = 0) {
-    // console.log(`--> displayProduct(product, ${prodId})`);
-    // console.log('product:', product);
+     console.log(`--> displayProduct(product, ${prodId})`);
+     console.log('product:', product);
     
     if (prodId >= 1) {  // Show selected product
         const imagePath = (product.image_url) ? product.image_url : '';
@@ -177,19 +181,36 @@ function displayProduct(product, prodId = 0) {
         // Remove previous product and add new product
         display.removeChild(display.children[0]);
         display.insertAdjacentHTML('afterbegin', article);
+        scrollToTop();
     }
 }
 
 function displaySearch() {
-    console.log('displaySearch()');
-    // console.log('targetList: ', targetList);
+    console.log('--> displaySearch()');
 
-    if (targetList) { // S
-        
-    }
-    else {
 
-    }
+    closeOthers('search');
+    scrollToTop();
+}
+
+function closeOthers(id) {
+    // console.log(`--> closeOthers(${id})`);
+
+    // console.log('display:', display);
+
+    for (let i = 0; i < display.children.length; i++) {
+        const item = display.children[i];
+        // console.log(item.id);
+
+        if (item.id === id) {
+            item.classList.add('show');
+            // console.log('show: ' + item.id);
+        }
+        else if (item.id != '') {
+            item.classList.remove('show');
+            // console.log('hide: ' + item.id);
+        }
+    }    
 }
 
 function extractObjectNames(arr) {
@@ -199,25 +220,3 @@ function extractObjectNames(arr) {
     return newArr;
 }
 
-function getTarget() {  // : array | undefined
-    // console.log('--> getTarget()');
-
-    // product:     ?prod=99
-    // query:       ?name=test%20
-    // paginering:  ?page=2
-
-    let arr;
-
-    let url = window.location.href;
-     console.log(`url: ${url}`);
-
-    const pos = url.indexOf('?');
-
-    if (pos >= 0) {
-        let args = url.substring(pos + 1);  // => prod=99
-        arr = args.split('=');  // 
-        // console.log(`arr: ${arr}`);
-    }
-
-    return arr;
-}

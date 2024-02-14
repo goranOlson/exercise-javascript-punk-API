@@ -52,19 +52,11 @@ a {
     cursor: pointer;
 }
 
-
-
-
-
-
-
 .page-main {
     height: calc(100vh - 50px);
     height: 100vh;
     padding-top: 50px;
     background-color: lightyellow;
-
-    height: 100%;
     padding-bottom: 80px;
 }
 .page-main .top {
@@ -101,7 +93,7 @@ a {
     margin-inline: auto;
     padding-top: 20px;
     background-color: #fff;
-    
+    display: none;
 }
 
 #main-product.product {
@@ -233,7 +225,9 @@ a {
     display: none;
     /* background-color: #aaa; */
 }
-#search.show {
+
+#search.show,
+#main-product.show {
     display: grid;
 }
 
