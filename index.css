@@ -19,21 +19,37 @@ a {
     background-color: #444;
     position: fixed;
     top: 0;
-
 }
 
 .page-header .nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+
     width: 100%;
     max-width: 1000px;
+    height: 100%;
+
     margin-inline: auto;
-    padding: 8px 16px;
-    /* background-color: #aaa; */
+    padding-inline: 16px;
+    padding-block: 8px;
 
     color: #e8e802;
     font-weight: bold;
+
+
+
+    display: grid;
+    grid-template-columns: auto 40px 40px;
+    grid-template-columns: max-content auto max-content max-content;
+    align-items: center;
+    column-gap: 16px;
+}
+
+.page-header .nav div {
+    padding: 4px;
+    /* background-color: red; */
+}
+
+.page-header .nav div:hover {
+    cursor: pointer;
 }
 
 
