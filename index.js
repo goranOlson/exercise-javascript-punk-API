@@ -5,8 +5,7 @@ const mainProduct = document.getElementById('main-product');
 
 const display = document.getElementById('display');
 
-const moreButton = document.querySelector(".display button");
-moreButton.addEventListener('click', moreClick);
+
 
 const targetList = getTarget();
  console.log('targetList:', targetList);
@@ -15,20 +14,49 @@ const target = (targetList) ? targetList[0] : '';  // Ex: ['prod', '280']
 // console.log(`target: ${target}`);
 
 
+
+
+
+const logotype = document.getElementById('logotype');
+logotype.addEventListener('click', () => {
+    console.log('logotype');
+    importProduct();
+});
+
+const iconHome = document.getElementById('icon_home');
+iconHome.addEventListener('click', () => {
+    console.log('iconHome');
+    importProduct();
+});
+
+const iconSearch = document.getElementById('icon_search');
+iconSearch.addEventListener('click', () => {
+    console.log('iconSearch');
+    displaySearch();
+});
+
+const moreButton = document.querySelector(".display button");
+moreButton.addEventListener('click', () => {
+    console.log('moreButton');
+    importProduct();
+});
+
+
+
 // page = '' || prod | search
 
-switch (target) {
-    case 'prod':  // prod=280
-        importProduct(targetList[1]);
-        break;
-    case 'search':  // search='Something'
-        displaySearch();
-        break;
-    default:
-        // console.log('No target...');
-        importProduct();
-        break;
-}
+// switch (target) {
+//     case 'prod':  // prod=280
+//         importProduct(targetList[1]);
+//         break;
+//     case 'search':  // search='Something'
+//         displaySearch();
+//         break;
+//     default:
+//         // console.log('No target...');
+//         importProduct();
+//         break;
+// }
 
 function moreClick() {
     window.location.assign("index.html");
@@ -154,7 +182,7 @@ function displayProduct(product, prodId = 0) {
 
 function displaySearch() {
     console.log('displaySearch()');
-    console.log('targetList: ', targetList);
+    // console.log('targetList: ', targetList);
 
     if (targetList) { // S
         
