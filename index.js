@@ -15,19 +15,19 @@ const display = document.getElementById('display');
 
 const logotype = document.getElementById('logotype');
 logotype.addEventListener('click', () => {
-    console.log('logotype');
+    // console.log('logotype');
     importProduct();
 });
 
 const iconHome = document.getElementById('icon_home');
 iconHome.addEventListener('click', () => {
-    console.log('iconHome');
+    // console.log('iconHome');
     importProduct();
 });
 
 const iconSearch = document.getElementById('icon_search');
 iconSearch.addEventListener('click', () => {
-    console.log('iconSearch');
+    // console.log('iconSearch');
     displaySearch();
 });
 
@@ -40,14 +40,14 @@ iconSearch.addEventListener('click', () => {
 
 const randomButton = document.querySelector("#display > button");
 randomButton.addEventListener('click', () => {
-    console.log('moreButton');
+    // console.log('moreButton');
     importProduct();
 });
 
 
 
 
-console.log('script start');
+// console.log('script start');
 importProduct();
 
 function moreClick() {
@@ -55,7 +55,7 @@ function moreClick() {
 }
 
 async function importProduct(prodId = 0) {
-     console.log(`--> importProduct(${prodId})`);
+    // console.log(`--> importProduct(${prodId})`);
 
     // Ask for prodId or random
     let url = "https://api.punkapi.com/v2/beers/";
@@ -65,7 +65,7 @@ async function importProduct(prodId = 0) {
     try {
         const response = await fetch(url);
         const data = await response.json();
-         console.log('Running prodId: ' + prodId);
+        // console.log('Running prodId: ' + prodId);
 
         if (prodId > 0) {
             displayProduct(data[0], prodId);
@@ -78,7 +78,7 @@ async function importProduct(prodId = 0) {
 }
 
 function displayProductCard(product) {
-     console.log(`--> displayProduct(product) => ${product.name}`);
+    // console.log(`--> displayProduct(product) => ${product.name}`);
     // console.log('product:', product);
 
     // let article;
@@ -86,7 +86,6 @@ function displayProductCard(product) {
         
     // Show random
     let articleInner = `
-        
             <img src="${imagePath}" alt="${product.name}">
             <div class="card-content">
                 <h4 title="${product.name}">${product.name}</h4> 
@@ -96,18 +95,17 @@ function displayProductCard(product) {
                     
                     <a href="index.html?prod=${product.id}">Se More <i class="fas fa-play"></i></a>
                 </p>
-            </div>
-        `;
-    console.log('article:', articleInner);
+            </div>`;
+    // console.log('article:', articleInner);
      
     mainProduct.innerHTML = articleInner;
 
     scrollToTop();
-    closeOthers('main-product');
+    closeOthers('product');
 }
 
 function scrollToTop() {
-    console.log('--> scrollToTop()');
+    // console.log('--> scrollToTop()');
     window.scrollTo({
         top: 0,
         left: 0,
@@ -117,8 +115,8 @@ function scrollToTop() {
 
 
 function displayProduct(product, prodId = 0) {
-     console.log(`--> displayProduct(product, ${prodId})`);
-     console.log('product:', product);
+    // console.log(`--> displayProduct(product, ${prodId})`);
+    // console.log('product:', product);
     
     if (prodId >= 1) {  // Show selected product
         const imagePath = (product.image_url) ? product.image_url : '';
@@ -186,7 +184,7 @@ function displayProduct(product, prodId = 0) {
 }
 
 function displaySearch() {
-    console.log('--> displaySearch()');
+    // console.log('--> displaySearch()');
 
 
     closeOthers('search');
