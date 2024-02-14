@@ -55,6 +55,8 @@ a {
 .page-main {
     height: calc(100vh - 50px);
     height: 100vh;
+    height: max-content;
+    min-height: 100vh;
     padding-top: 50px;
     background-color: lightyellow;
     padding-bottom: 80px;
@@ -82,13 +84,14 @@ a {
     display: none;
 }
 
-#main-product {
+.product {
     display: grid;
     grid-template-columns: auto;
     grid-template-rows: 420px auto;
     align-items: stretch;
     width: 100%;
-    height: 570px;
+    height: max-content;
+    min-height: 570px;
     min-width: 280px;
     max-width: 60%;
     margin-block: 50px 0px;
@@ -97,22 +100,22 @@ a {
     background-color: #fff;
 }
 
-#main-product.product {
+.product {
     height: max-content;
     box-shadow: none;
     border: 1px solid #ddd;
 }
 
-#main-product.card {
+.product.card {
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
     transition: 0.3s;
 }
 
-#main-product.card:hover {
+.product.card:hover {
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 
-#main-product img {
+.product img {
     height: 400px;
     margin-block: 26px;
 
@@ -121,7 +124,7 @@ a {
     padding-block: 10px;
 }
   
-#main-product .card-content {
+.product .card-content {
     display: grid;
     padding-inline: 16px;
     padding-block: 2px 8px;
@@ -129,23 +132,23 @@ a {
     color: whitesmoke;   
 }
 
-#main-product h4 {
+.product h4 {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding-block: 8px;
 }
 
-#main-product p {
+.product p {
     padding-block: 4px;
 }
 
-#main-product p:last-of-type {  /* Se more link */
+.product p:last-of-type {  /* Se more link */
     display: flex;
     justify-content: flex-end;
 }
 
-#main-product p:last-of-type a {
+.product p:last-of-type a {
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -154,20 +157,20 @@ a {
     color: #f5f57c;
 }
 
-#main-product p:last-of-type a:hover {
+.product p:last-of-type a:hover {
     color: yellow;
 }
 
-#main-product p:last-of-type a i {
+.product p:last-of-type a i {
     margin-left: 8px;
     font-size: 8px;
 }
 
-#main-product.product p {
+.product p {
     padding-block: 16px;
 }
 
-#main-product.product .list {
+.product .list {
     display: grid;
     grid-template-columns: auto;
     grid-template-rows: auto;
@@ -175,7 +178,7 @@ a {
     /* background-color: #444; */
 }
 
-#main-product.product .list .label {
+.product .list .label {
     color: lightyellow;
     border-bottom: 1px solid lightyellow;
     margin-bottom: 2px;
@@ -184,13 +187,13 @@ a {
     color: #ddd;
 }
 
-#main-product h5 {
+.product h5 {
     padding-bottom: 2px;
     font-weight: normal;
     border-bottom: 1px solid whitesmoke;
 }
 
-#main-product div.spread {
+.product div.spread {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -232,8 +235,14 @@ a {
     /* background-color: #aaa; */
 }
 
+#data {
+    /* background-color: #faa; */
+    display: none;
+}
+
 #search.show,
-#product.show {
+#product.show,
+#data.show {
     display: grid;
 }
 
@@ -333,7 +342,7 @@ a {
         font-size: 30px;
     }
 
-    #main-product {
+    .product {
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto;
         align-items: center;
@@ -342,16 +351,16 @@ a {
         padding-block: 20px;
     }
     
-    #main-product img {
+    .product img {
         height: 700px;
     }
 
-    #main-product .card-content {
+    .product .card-content {
         background: transparent;
         color: black;
     }
 
-    #main-product p:last-of-type a {
+    .product p:last-of-type a {
         margin-top: 10px;
         color: #222;
         font-weight: normal;
@@ -359,16 +368,16 @@ a {
         text-shadow: 0px 0 4px #FFA700;
     }
 
-    #main-product p:last-of-type a:hover {
+    .product p:last-of-type a:hover {
         color: #222;
         /* text-shadow: 0px 0px 4px #F7D624; */
     }
 
-    #main-product.product .list {
+    .product .list {
         row-gap: 16px;
     }
 
-    #main-product.product .list .label {
+    .product .list .label {
         color: #222;
     }
 }
