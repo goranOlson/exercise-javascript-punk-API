@@ -2,13 +2,24 @@ const maxPage = 10;
 
 
 const mainProduct = document.getElementById('main-product');
+mainProduct.addEventListener('click', (event) => {
+    // console.log('click on article');
+    if (event.target.tagName === "A") {
+         console.log('click on seeMore');
+        event.preventDefault();
+        event.stopPropagation();
+
+        // const target = event.target;
+        const id = event.target.getAttribute('data-id');
+         console.log('id: ' + id);
+        importProduct(id);
+    }
+
+});
+
+const productData = document.getElementById('product-data');
 
 const display = document.getElementById('display');
-
-
-
-// const sectionSearch = document.getElementById('#search');
-
 
 
 /* ###### Icons/logotype ###### */
@@ -32,11 +43,15 @@ iconSearch.addEventListener('click', () => {
 });
 
 
-// const seMoreButton = document.querySelector('#main-product a');
-// seMoreButton.addEventListener('click', (event) => {
-//     event.stopPropagation();
-//     console.log('seMoreButton');
-// });
+const seeMoreButton = document.querySelector('#main-product a');
+if (seeMoreButton) {
+     console.log('adding listener to seeMoreButton');
+    seeMoreButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        console.log('seMoreButton()');
+        console.log('');
+    });
+}
 
 const randomButton = document.querySelector("#display > button");
 randomButton.addEventListener('click', () => {
@@ -48,14 +63,12 @@ randomButton.addEventListener('click', () => {
 
 
 // console.log('script start');
-importProduct();
+importProduct();  // Default start with random beer
 
-function moreClick() {
-    window.location.assign("index.html");
-}
+
 
 async function importProduct(prodId = 0) {
-    // console.log(`--> importProduct(${prodId})`);
+     console.log(`--> importProduct(${prodId})`);
 
     // Ask for prodId or random
     let url = "https://api.punkapi.com/v2/beers/";
@@ -78,13 +91,13 @@ async function importProduct(prodId = 0) {
 }
 
 function displayProductCard(product) {
-    // console.log(`--> displayProduct(product) => ${product.name}`);
+     console.log(`--> displayProduct(product) => ${product.name}`);
     // console.log('product:', product);
 
-    // let article;
+    // image is not always provided
     const imagePath = (product.image_url) ? product.image_url : '';
         
-    // Show random
+    // Show random as card
     let articleInner = `
             <img src="${imagePath}" alt="${product.name}">
             <div class="card-content">
@@ -93,7 +106,7 @@ function displayProductCard(product) {
                 <p>${product.abv}% alcohol</p> 
                 <p>
                     
-                    <a href="index.html?prod=${product.id}">Se More <i class="fas fa-play"></i></a>
+                    <a href="" data-id="${product.id}" title='Se more about this beer'>See More <i class="fas fa-play"></i></a>
                 </p>
             </div>`;
     // console.log('article:', articleInner);
@@ -104,19 +117,9 @@ function displayProductCard(product) {
     closeOthers('product');
 }
 
-function scrollToTop() {
-    // console.log('--> scrollToTop()');
-    window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'smooth',
-    });
-}
-
-
 function displayProduct(product, prodId = 0) {
-    // console.log(`--> displayProduct(product, ${prodId})`);
-    // console.log('product:', product);
+     console.log(`--> displayProduct(product, ${prodId})`);
+     console.log('product:', product);
     
     if (prodId >= 1) {  // Show selected product
         const imagePath = (product.image_url) ? product.image_url : '';
@@ -136,7 +139,7 @@ function displayProduct(product, prodId = 0) {
         // console.log('foodPairing', foodPairing);
 
         let article = `
-            <article id="main-product" class="product" style="height: max-content">
+            
                 <img src="${imagePath}" alt="${product.name}">
                 <div class="card-content">
                     <h4 title="${product.name}">${product.name}</h4> 
@@ -174,12 +177,13 @@ function displayProduct(product, prodId = 0) {
                         </div>
                     </div>
                 </div>
-            </article>`;
-
-        // Remove previous product and add new product
-        display.removeChild(display.children[0]);
-        display.insertAdjacentHTML('afterbegin', article);
+            `;
+        // productData
+        productData.innerHTML = article;
+        
         scrollToTop();
+
+        closeOthers('data');
     }
 }
 
@@ -189,6 +193,15 @@ function displaySearch() {
 
     closeOthers('search');
     scrollToTop();
+}
+
+function scrollToTop() {
+    // console.log('--> scrollToTop()');
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth',
+    });
 }
 
 function closeOthers(id) {
@@ -202,11 +215,11 @@ function closeOthers(id) {
 
         if (item.id === id) {
             item.classList.add('show');
-            // console.log('show: ' + item.id);
+             console.log('show: ' + item.id);
         }
         else if (item.id != '') {
             item.classList.remove('show');
-            // console.log('hide: ' + item.id);
+             console.log('hide: ' + item.id);
         }
     }    
 }
