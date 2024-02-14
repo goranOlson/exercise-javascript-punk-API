@@ -1,5 +1,6 @@
-const maxPage = 10;
+const MAX_SEARCH = 10;
 
+let actPage = 1;
 
 const mainProduct = document.getElementById('main-product');
 mainProduct.addEventListener('click', (event) => {
@@ -21,6 +22,13 @@ const productData = document.getElementById('product-data');
 
 const display = document.getElementById('display');
 
+const form = document.querySelector('form');
+form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log('submint form');
+    importSearch();
+});
 
 /* ###### Icons/logotype ###### */
 
@@ -88,6 +96,45 @@ async function importProduct(prodId = 0) {
     } catch (error) {
         console.error('Error: ', error);
     }
+}
+
+async function importSearch() {
+    console.log('--> importSearch()');
+
+    const searchResults = document.querySelector('.search-results');
+    searchResults.innerHTML = '';  // Empty results
+    
+    // actPage = 1; // default
+
+    const value = form.querySelector('input').value;
+     console.log('value: ' + value);
+
+    // https://api.punkapi.com/v2/beers?beer_name=berliner
+    // https://api.punkapi.com/v2/beers?page=1&per_page=10
+
+    let url = "https://api.punkapi.com/v2/beers";
+    url += `?page=1&per_page=11&beer_name=${value}`;
+     console.log('url: ' + url);
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+         console.log('search data: ', data);
+        
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
+            const element = `<div class="link" data-id="${item.id}">${item.name}</div>`;
+            searchResults.insertAdjacentHTML('beforeend', element);
+        }
+
+    } catch (error) {
+        
+    }
+
+
+    // < if (page > 1)
+    // > if (more than displayed)
+
 }
 
 function displayProductCard(product) {
@@ -187,13 +234,17 @@ function displayProduct(product, prodId = 0) {
     }
 }
 
-function displaySearch() {
-    // console.log('--> displaySearch()');
+function displaySearch(arr = undefined) {
+    console.log('--> displaySearch()');
+    console.log('arr:', arr);
 
 
     closeOthers('search');
     scrollToTop();
 }
+
+
+
 
 function scrollToTop() {
     // console.log('--> scrollToTop()');

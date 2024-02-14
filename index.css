@@ -287,16 +287,17 @@ a {
     margin-block: 40px;
 }
 
-#search .search-results a {
-    /* display: block; */
-    /* width: 100%; */
+#search .search-results .link {
     padding-inline: 16px;
     padding-block: 4px;
-
-    /* background-color: #ddd; */
     background-color: #f4f402;
     border-radius: 7px;
     color: #222;
+}
+
+#search .search-results .link:hover {
+    cursor: pointer;
+    background-color: #dada05;
 }
 
 #search .search-navigation {
