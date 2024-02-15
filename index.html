@@ -30,53 +30,42 @@
     <main class="page-main">
       <div id="display" class="display">
         <div class="loader"></div>
+
         <section id="search" class="">
           <div class="top">
             <h1>Search Page</h1>
           </div>
-  
           <form action="">
             <div class="form-container">
               <input type="text" placeholder="Beer name">
               <button type="submit">Search</button>
             </div>
           </form>
-  
-          <div class="search-results">
-          </div>
-  
+          <div class="search-results"></div>
           <div class="search-navigation">
             <span class="pager left inactive"><i class="fas fa-chevron-left"></i> </span>
             <span class="pager nbr">1</span>
             <span class="pager right"><i class="fas fa-chevron-right"></i></span>
-
           </div>
-        </section>
+        </section><!-- end:search -->
         
         <section id="product">
           <div class="top">
             <h1>Punk API</h1>
             <div class="slogan">A beer project!</div>
           </div>
-          
-          <article id="main-product" class="product card">
-            
-
-          </article>
-        </section>
+          <article id="main-product" class="product card"></article>
+        </section><!-- end:product -->
 
         <section id="data">
           <div class="top">
             <h1>Product data</h1>
           </div>
           <article id="product-data" class="product"></article>
-        </section>
+        </section><!-- end:data -->
 
         <button class="get-random">See a random beer</button>
       </div><!-- end:display -->
-
-      
-      <!-- end: display-area -->
     </main>
 
     <script src="index.js" type="module"></script>
