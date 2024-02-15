@@ -1,5 +1,12 @@
 const MAX_SEARCH = 10;
 
+const STORAGE_NAME = 'punk_api';
+const STORE_VIEW = 'view';  // search
+const STORE_PAGE = 'page';  // page nbr
+const STORE_PRODUCT = 0;  // product id
+const STORE_SEARCH = 'search';  // search
+
+
 let actPage = 0;
 let searchString = '';
 
@@ -78,12 +85,89 @@ arrowNext.addEventListener('click', clickNextPage);
 const loader = document.querySelector('#display .loader');
 
 
+
+
+
+/* ###### Init system ###### */
+// view
+const initData = init();
+ console.log('initData:', initData);
+
 // console.log('script start');
 // importProduct();  // Default start with random beer
-displaySearch();
+
+const view = (initData) ? initData[0] : 'product';
+ console.log('view: ' + view);
+
+switch (view) {
+    case 'data':  // Product details
+        const prodId = (initData[1]) ? initData[1] : 0;
+        console.log('# Show data: ' + prodId);
+        importProduct(prodId);
+        break;
+    case 'product':  // Product card
+        console.log('# Show product');
+        importProduct();
+        break;
+    case 'search':  // Search
+        console.log('# Show search');
+        displaySearch();
+        break;
+    default:
+        // console.error('Bad view');
+        importProduct();
+        break;
+}
+
+// displaySearch();
+
+// STORAGE_NAME: 
+// ['search', [string]]
+// ['data', 102]
+// ['product'] || ['product', 102]
+
+function init() {
+
+    const arr = JSON.parse( localStorage.getItem(STORAGE_NAME) );
+
+    return arr;
+}
+
+
+function init2() {  // Set default values  OLD
+    const obj = {
+        view: 'product',
+        productId: 0,
+        page: 0,
+        search: ''
+    };
+    
+    const view = localStorage.getItem(STORE_VIEW);
+    if (view) {
+        obj.view = view;
+    }
+
+    const prodId = localStorage.getItem(STORE_PRODUCT);
+    if (prodId) {
+        obj.productId = prodId;
+    }
+
+    const page = localStorage.getItem(STORE_PAGE);
+    if (page) {
+        obj.page = page;
+    }
+
+    const search = localStorage.getItem(STORE_SEARCH);
+    if (search) {
+        obj.search = search;
+    }
+    
+    return obj;
+}
+
 
 async function importProduct(prodId = 0) {
-    // console.log(`--> importProduct(${prodId})`);
+     console.log(`--> importProduct(${prodId})`);
     loader.classList.add('active');
     // Ask for prodId or random
     let url = "https://api.punkapi.com/v2/beers/";
@@ -93,13 +177,17 @@ async function importProduct(prodId = 0) {
     try {
         const response = await fetch(url);
         const data = await response.json();
-        // console.log('Running prodId: ' + prodId);
+         console.log('Running prodId: ' + prodId);
 
         if (prodId > 0) {
             displayProduct(data[0], prodId);
+            localStorage.setItem( STORAGE_NAME, JSON.stringify(['data', prodId]) );
         } else {
-            displayProductCard(data[0])
+            displayProductCard(data[0]);
+            localStorage.setItem( STORAGE_NAME, JSON.stringify(['product']) );
         }
+
+        
     } catch (error) {
         console.error('Error: ', error);
     } finally {
@@ -132,7 +220,7 @@ function displayProductCard(product) {
     mainProduct.innerHTML = articleInner;
 
     scrollToTop();
-    closeOthers('product');
+    switchView('product');
 }
 
 function displayProduct(product, prodId = 0) {
@@ -201,7 +289,7 @@ function displayProduct(product, prodId = 0) {
         
         scrollToTop();
 
-        closeOthers('data');
+        switchView('data');
     }
 }
 
@@ -272,11 +360,11 @@ async function importSearch(pageNbr = 0) {  // value only from arrows!
         searchString = input.value.trim();
         pageNbr = 1;
     }
-    //  console.log('searchString: ' + searchString);
+    
+    url = `https://api.punkapi.com/v2/beers?page=${pageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
+    // console.log('url: ' + url);
 
     try {
-        url = `https://api.punkapi.com/v2/beers?page=${pageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
-        // console.log('url: ' + url);
         const response = await fetch(url);
         const data = await response.json();
         // console.log('data: ', data);
@@ -289,9 +377,9 @@ async function importSearch(pageNbr = 0) {  // value only from arrows!
 
         // Check if there are more search results...
         try {
-            url = `https://api.punkapi.com/v2/beers?page=${pageNbr + 1}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
-            // console.log('url: ' + url);
-            const response = await fetch(url);
+            let urlMore = `https://api.punkapi.com/v2/beers?page=${pageNbr + 1}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
+            // console.log('urlMore: ' + urlMore);
+            const response = await fetch(urlMore);
             const data = await response.json();
             // console.log('data 2: ', data);
             
@@ -315,12 +403,16 @@ async function importSearch(pageNbr = 0) {  // value only from arrows!
     actPage = pageNbr;
     // console.log('actPage: ' + actPage);
 
+    // localStorage.setItem(STORE_PAGE, actPage);
+    // localStorage.setItem(STORE_SEARCH, url);
+
 }
+
 function displaySearch(arr = undefined) {
     // console.log('--> displaySearch()');
     // console.log('arr:', arr);
 
-    closeOthers('search');
+    switchView('search');
 
     scrollToTop();
 }
@@ -339,18 +431,17 @@ function scrollToTop() {
     });
 }
 
-function closeOthers(id) {
+function switchView(sectionName) {
     // console.log(`--> closeOthers(${id})`);
     for (let i = 0; i < display.children.length; i++) {
         const item = display.children[i];
 
-        if (item.id === id) {
+        if (item.id === sectionName) {
             item.classList.add('show');
-            // console.log('show: ' + item.id);
+            // localStorage.setItem(STORE_VIEW, sectionName);
         }
         else if (item.id != '') {
             item.classList.remove('show');
-            // console.log('hide: ' + item.id);
         }
     }    
 }
