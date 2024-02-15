@@ -75,7 +75,7 @@ arrowPrevious.addEventListener('click', clickPreviousPage);
 const arrowNext = document.querySelector('.pager.right');
 arrowNext.addEventListener('click', clickNextPage);
 
-
+const loader = document.querySelector('#display .loader');
 
 
 // console.log('script start');
@@ -84,7 +84,7 @@ displaySearch();
 
 async function importProduct(prodId = 0) {
     // console.log(`--> importProduct(${prodId})`);
-
+    loader.classList.add('active');
     // Ask for prodId or random
     let url = "https://api.punkapi.com/v2/beers/";
     url += (prodId >= 1) ? prodId : "random";
@@ -102,7 +102,10 @@ async function importProduct(prodId = 0) {
         }
     } catch (error) {
         console.error('Error: ', error);
+    } finally {
+        loader.classList.remove('active');
     }
+
 }
 
 function displayProductCard(product) {
@@ -257,6 +260,7 @@ async function importSearch(pageNbr = 0) {  // value only from arrows!
     const input = form.querySelector('input');
 
     // loader?
+    loader.classList.add('active');
     
     let url;  // = `https://api.punkapi.com/v2/beers?page=${pageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
     let hasMore = false;
@@ -300,7 +304,10 @@ async function importSearch(pageNbr = 0) {  // value only from arrows!
         updateSearchNav(pageNbr, hasMore);
     } catch (error) {
         console.error('Error: ', error);
+    } finally {
+        loader.classList.remove('active');
     }
+
 
     if (pageNbr > 0) {
         actPage = (pageNbr > 0) ? pageNbr : 1;
