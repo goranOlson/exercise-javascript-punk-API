@@ -495,7 +495,7 @@ function switchView(sectionName) {
     // console.log(`--> switchView(${sectionName})`);
 
     if (sectionName !== 'search') {
-        searchString = '';
+        // searchString = '';
         // console.log(`- emptying 'searchString': ${searchString}`);
     }
 
