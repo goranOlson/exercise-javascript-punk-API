@@ -35,7 +35,7 @@ form.addEventListener('submit', (event) => {
     event.preventDefault();
     event.stopPropagation();
     // console.log('submint form');
-    importSearch();
+    fetchSearchResults();
 });
 
 const searchResults = document.querySelector('.search-results');
@@ -90,27 +90,29 @@ const loader = document.querySelector('#display .loader');
 
 /* ###### Init system ###### */
 // view
-const initData = init();
- console.log('initData:', initData);
+const initData = getLocalStorageData();
+// console.log('initData:', initData);
 
 // console.log('script start');
 // importProduct();  // Default start with random beer
 
 const view = (initData) ? initData[0] : 'product';
- console.log('view: ' + view);
+// console.log('view: ' + view);
 
 switch (view) {
     case 'data':  // Product details
         const prodId = (initData[1]) ? initData[1] : 0;
-         console.log('# Show data: ' + prodId);
+        // console.log('# Show data: ' + prodId);
         importProduct(prodId);
         break;
     case 'product':  // Product card
-         console.log('# Show product');
+        // console.log('# Show product');
         importProduct();
         break;
     case 'search':  // Search
-         console.log('# Show search');
+        searchString = (initData[1]) ? initData[1] : '';
+        actPage = (initData[2]) ? initData[2] : 0;
+        // console.log(`# Show search: '${searchString}',  ${actPage}`);
         displaySearch();
         break;
     default:
@@ -126,8 +128,7 @@ switch (view) {
 // ['data', 102]
 // ['product'] || ['product', 102]
 
-function init() {
-
+function getLocalStorageData() {
     const arr = JSON.parse( localStorage.getItem(STORAGE_NAME) );
 
     return arr;
@@ -167,7 +168,7 @@ function init2() {  // Set default values  OLD
 
 
 async function importProduct(prodId = 0) {
-     console.log(`--> importProduct(${prodId})`);
+    // console.log(`--> importProduct(${prodId})`);
     loader.classList.add('active');
     // Ask for prodId or random
     let url = "https://api.punkapi.com/v2/beers/";
@@ -177,7 +178,7 @@ async function importProduct(prodId = 0) {
     try {
         const response = await fetch(url);
         const data = await response.json();
-         console.log('Running prodId: ' + prodId);
+        // console.log('Running prodId: ' + prodId);
 
         if (prodId > 0) {
             displayProduct(data[0], prodId);
@@ -295,24 +296,14 @@ function displayProduct(product, prodId = 0) {
 
 /* ###### Search ###### */
 function clickPreviousPage() {
-    // console.log(`--> click clickPreviousPage() actPage: ${actPage}, searchString: '${searchString}'`);
-    if (searchString && !arrowPrevious.classList.contains('inactive') ) {
-        // console.log(`=> importSearch(${actPage - 1})`);
-        importSearch(actPage - 1);
-    }
-    else {
-        console.error('Clicked inactive .pager.left!?');
+    if (searchResults.children.length && !arrowPrevious.classList.contains('inactive') ) {
+        fetchSearchResults(actPage - 1);  // searchResults
     }
 }
 
 function clickNextPage() {  
-    // console.log(`--> click nextPage() actPage: ${actPage}, searchString: '${searchString}'`);
-    if (searchString && !arrowNext.classList.contains('inactive') ) {
-        // console.log(`=> importSearch(${actPage - 1})`);
-        importSearch(actPage + 1);
-    }
-    else {
-        console.error('Clicked inactive .pager.right!?');
+    if (searchResults.children.length && !arrowNext.classList.contains('inactive') ) {
+        fetchSearchResults(actPage + 1);
     }
 }
 
@@ -329,7 +320,7 @@ function updateSearchNav(page = 0, more = false) {  // actPage, more
         searchNavigaton.children[1].innerHTML = page;
         if (more) {
             searchNavigaton.children[2].classList.remove('inactive');
-        }   
+        }
     }
     else {
         searchResults.innerHTML = '';  // Empty results
@@ -342,19 +333,15 @@ function updateSearchNav(page = 0, more = false) {  // actPage, more
 
 
 
-async function importSearch(newPageNbr = 0) {  // value only from arrows!
-    // console.log(`--> importSearch(${pageNbr}) actPage: ` + pageNbr);
+async function fetchSearchResults(newPageNbr = 0) {  // value only from arrows!
+    // console.log(`--> fetchSearchResults(${newPageNbr}) actPage: ` + actPage);
     // console.log(`searchString: '${searchString}'`);  // global
-    updateSearchNav();  // Empty previous result
-
+    let hasMore = false;
     const input = form.querySelector('input');
 
-    // loader?
+    updateSearchNav();  // Empty previous result
     loader.classList.add('active');
-    
-    let url;  // = `https://api.punkapi.com/v2/beers?page=${pageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
-    let hasMore = false;
-    
+
     if (newPageNbr > 0) {  // Previous/next page
         input.value = searchString;  // Set input to remove changes
     }
@@ -362,8 +349,9 @@ async function importSearch(newPageNbr = 0) {  // value only from arrows!
         searchString = input.value.trim();
         newPageNbr = 1;
     }
+    // console.log('- using newPageNbr: '+ newPageNbr);
     
-    url = `https://api.punkapi.com/v2/beers?page=${newPageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
+    let url = `https://api.punkapi.com/v2/beers?page=${newPageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
     // console.log('url: ' + url);
 
     try {
@@ -372,33 +360,66 @@ async function importSearch(newPageNbr = 0) {  // value only from arrows!
         // console.log('data: ', data);
 
         // Check if there are more search results...
-        if (newPageNbr > actPage && data.length >= MAX_SEARCH) {  
-            // console.log('Check for more results...');
-            hasMore = await searchMoreResults(searchString, newPageNbr);
-            // console.log(`hasMore: ${hasMore}`);
-        }
+        hasMore = await isMoreResults(searchString, newPageNbr);  // Get data for navigations arrows
+
         displaySearchResults(data);  // Show result
     } catch (error) {
         console.error('Error: ', error);
     } finally {
-        console.log(`hasMore 2: ${hasMore}`);
+        // console.log(`hasMore 2: ${hasMore}`);
         updateSearchNav(newPageNbr, hasMore);  // Update page navigation
         loader.classList.remove('active');
     }
 
-    if (newPageNbr > 0) {
-        actPage = (newPageNbr > 0) ? newPageNbr : 1;
-    }
-    actPage = newPageNbr;
+    actPage = newPageNbr;  // Store page number global
     // console.log('actPage: ' + actPage);
 
-    // localStorage.setItem(STORE_PAGE, actPage);
-    // localStorage.setItem(STORE_SEARCH, url);
-
+    // Store data
+    localStorage.setItem( STORAGE_NAME, JSON.stringify([STORE_SEARCH, searchString, newPageNbr]) );
 }
 
-async function searchMoreResults(searchString, pageNbr) {
-    // console.log(`--> searchMoreResults(${searchString}, ${pageNbr})`);
+async function isMoreResults(searchString, pageNbr) {
+    // console.log(`--> isMoreResults(${searchString}, ${pageNbr})`);
+    let hasMore = false;
+    /*  // page = (pageNbr * MAX_SEARCH) + 1
+        pageNbr 1: https://api.punkapi.com/v2/beers?page=11&per_page=1&beer_name=beer
+        
+        pageNbr 2: https://api.punkapi.com/v2/beers?page=21&per_page=1&beer_name=beer
+    */
+
+    const nbr = pageNbr * MAX_SEARCH + 1;  // Create fictive page number
+    const url = `https://api.punkapi.com/v2/beers?page=${nbr}&per_page=1&beer_name=${searchString}`;
+    // console.log(`url: ${url}`);
+
+    if (pageNbr < actPage && pageNbr >= 0) {  // Previous page
+        hasMore = true;
+        // console.log('- going down...');
+    }
+    else {
+        // console.log('- check if more...');
+        const nbr = pageNbr * MAX_SEARCH + 1;  // Create fictive page number
+        const url = `https://api.punkapi.com/v2/beers?page=${nbr}&per_page=1&beer_name=${searchString}`;
+        // console.log(`url: ${url}`);
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            // console.log('Next data: ', data);
+            hasMore = (data.length > 0) ? true : false;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+
+    // console.log(`=> hasMore: ${hasMore}`);
+    return hasMore;
+}
+
+
+
+async function isMoreResults_2(searchString, pageNbr) {
+    // console.log(`--> isMoreResults_2(${searchString}, ${pageNbr})`);
     let hasMore = false;
     /*  // page = (pageNbr * MAX_SEARCH) + 1
         pageNbr 1: https://api.punkapi.com/v2/beers?page=11&per_page=1&beer_name=beer
@@ -423,85 +444,20 @@ async function searchMoreResults(searchString, pageNbr) {
 }
 
 
-async function importSearch_2(pageNbr = 0) {  // value only from arrows!
-    // console.log(`--> importSearch(${pageNbr}) actPage: ` + pageNbr);
-
-    updateSearchNav();  // Empty previous result
-
-    const input = form.querySelector('input');
-
-    // loader?
-    loader.classList.add('active');
-    
-    let url;  // = `https://api.punkapi.com/v2/beers?page=${pageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
-    let hasMore = false;
-    
-    if (pageNbr > 0) {  // Previous/next page
-        input.value = searchString;  // Set input to remove changes
-    }
-    else {  // New search
-        searchString = input.value.trim();
-        pageNbr = 1;
-    }
-    
-    url = `https://api.punkapi.com/v2/beers?page=${pageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
-    // console.log('url: ' + url);
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        // console.log('data: ', data);
-        
-        for (let i = 0; i < data.length; i++) {
-            const item = data[i];
-            const element = `<div class="link" data-id="${item.id}">${item.name}</div>`;
-            searchResults.insertAdjacentHTML('beforeend', element);
-        }
-
-        // Check if there are more search results...
-        try {
-            let urlMore = `https://api.punkapi.com/v2/beers?page=${pageNbr + 1}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
-            // console.log('urlMore: ' + urlMore);
-            const response = await fetch(urlMore);
-            const data = await response.json();
-            // console.log('data 2: ', data);
-            
-            hasMore = (data.length > 0) ? true : false;
-        } catch (error) {
-            console.error('Error 2: ', error);
-        }
-
-        // Update page navigation
-        updateSearchNav(pageNbr, hasMore);
-    } catch (error) {
-        console.error('Error: ', error);
-    } finally {
-        loader.classList.remove('active');
-    }
-
-
-    if (pageNbr > 0) {
-        actPage = (pageNbr > 0) ? pageNbr : 1;
-    }
-    actPage = pageNbr;
-    // console.log('actPage: ' + actPage);
-
-    // localStorage.setItem(STORE_PAGE, actPage);
-    // localStorage.setItem(STORE_SEARCH, url);
-
-}
 
 function displaySearch(arr = undefined) {
-    // console.log('--> displaySearch()');
+    // console.log('--> displaySearch() searchString: ' + searchString);
     // console.log('arr:', arr);
-
+    localStorage.setItem( STORAGE_NAME, JSON.stringify([STORE_SEARCH, searchString, 1]) );
     switchView('search');
-
+    if (searchString) {
+        document.querySelector('form input').value = searchString;
+    }
     scrollToTop();
 }
 
 function displaySearchResults(results) {
-     console.log(`--> displaySearchResults(${results.length})`);
+    // console.log(`--> displaySearchResults(${results.length})`);
     for (let i = 0; i < results.length; i++) {
         const item = results[i];
         const element = `<div class="link" data-id="${item.id}">${item.name}</div>`;
@@ -522,12 +478,20 @@ function scrollToTop() {
 }
 
 function switchView(sectionName) {
-    // console.log(`--> closeOthers(${id})`);
+    // console.log(`--> switchView(${sectionName})`);
+
+    if (sectionName !== 'search') {
+        searchString = '';
+        // console.log(`- emptying 'searchString': ${searchString}`);
+    }
+
     for (let i = 0; i < display.children.length; i++) {
         const item = display.children[i];
+        // console.log('id: ' + item.id);
 
         if (item.id === sectionName) {
             item.classList.add('show');
+            // console.log('- show ' + sectionName);
             // localStorage.setItem(STORE_VIEW, sectionName);
         }
         else if (item.id != '') {
