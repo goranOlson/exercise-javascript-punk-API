@@ -21,7 +21,7 @@ mainProduct.addEventListener('click', (event) => {
         // const target = event.target;
         const id = event.target.getAttribute('data-id');
         // console.log('id: ' + id);
-        importProduct(id);
+        showProduct(id);
     }
 
 });
@@ -34,8 +34,8 @@ const form = document.querySelector('form');
 form.addEventListener('submit', (event) => {
     event.preventDefault();
     event.stopPropagation();
-    // console.log('submint form');
-    fetchSearchResults();
+    
+    showSearchResult();
 });
 
 const searchResults = document.querySelector('.search-results');
@@ -43,29 +43,31 @@ searchResults.addEventListener('click', (event) => {
     // console.log('click searchResult. Result id: ' + event.target.dataset.id);
     const target = event.target; 
 
-    // inactivate previous link
-    const activeLink = searchResults.querySelector('.link.active');
-    if (activeLink) {
-        activeLink.classList.remove('active');
+    if (target.classList.contains('link')) {  // Click on link?
+        // inactivate previous link
+        const activeLink = searchResults.querySelector('.link.active');
+        if (activeLink) {
+            activeLink.classList.remove('active');
+        }
+
+        // active new link
+        target.classList.add('active');
+
+        showProduct(target.dataset.id);
     }
-
-    // active new link
-    target.classList.add('active');
-
-    importProduct(target.dataset.id);
 });
 
 /* ###### Icons/logotype ###### */
 const logotype = document.getElementById('logotype');
 logotype.addEventListener('click', () => {
     // console.log('logotype');
-    importProduct();
+    showProduct();
 });
 
 const iconHome = document.getElementById('icon_home');
 iconHome.addEventListener('click', () => {
     // console.log('iconHome');
-    importProduct();
+    showProduct();
 });
 
 const iconSearch = document.getElementById('icon_search');
@@ -87,7 +89,7 @@ if (seeMoreButton) {
 const randomButton = document.querySelector("#display > button");
 randomButton.addEventListener('click', () => {
     // console.log('moreButton');
-    importProduct();
+    showProduct();
 });
 
 const arrowPrevious = document.querySelector('.pager.left');
@@ -103,12 +105,9 @@ const loader = document.querySelector('#display .loader');
 
 
 /* ###### Init system ###### */
-// view
+
 const initData = getLocalStorageData();
 // console.log('initData:', initData);
-
-// console.log('script start');
-// importProduct();  // Default start with random beer
 
 const view = (initData) ? initData[0] : 'product';
 // console.log('view: ' + view);
@@ -117,11 +116,11 @@ switch (view) {
     case 'data':  // Product details
         const prodId = (initData[1]) ? initData[1] : 0;
         // console.log('# Show data: ' + prodId);
-        importProduct(prodId);
+        showProduct(prodId);
         break;
     case 'product':  // Product card
         // console.log('# Show product');
-        importProduct();
+        showProduct();
         break;
     case 'search':  // Search
         searchString = (initData[1]) ? initData[1] : '';
@@ -131,78 +130,41 @@ switch (view) {
         break;
     default:
         // console.error('Bad view');
-        importProduct();
+        showProduct();
         break;
 }
 
-// displaySearch();
-
-// STORAGE_NAME: 
-// ['search', [string]]
-// ['data', 102]
-// ['product'] || ['product', 102]
-
 function getLocalStorageData() {
+    // STORAGE_NAME: 
+    // ['search', [string]]
+    // ['data', 102]
+    // ['product'] || ['product', 102]
+
     const arr = JSON.parse( localStorage.getItem(STORAGE_NAME) );
 
     return arr;
 }
 
-
-function init2() {  // Set default values  OLD
-    const obj = {
-        view: 'product',
-        productId: 0,
-        page: 0,
-        search: ''
-    };
-    
-    const view = localStorage.getItem(STORE_VIEW);
-    if (view) {
-        obj.view = view;
-    }
-
-    const prodId = localStorage.getItem(STORE_PRODUCT);
-    if (prodId) {
-        obj.productId = prodId;
-    }
-
-    const page = localStorage.getItem(STORE_PAGE);
-    if (page) {
-        obj.page = page;
-    }
-
-    const search = localStorage.getItem(STORE_SEARCH);
-    if (search) {
-        obj.search = search;
-    }
-    
-    return obj;
-}
-
-
-async function importProduct(prodId = 0) {
-    // console.log(`--> importProduct(${prodId})`);
+async function showProduct(prodId = 0) {
+    // console.log(`--> showProduct(${prodId})`);
     loader.classList.add('active');
-    // Ask for prodId or random
+    
     let url = "https://api.punkapi.com/v2/beers/";
     url += (prodId >= 1) ? prodId : "random";
     // console.log('url: ' + url);
 
+    // Fetch data for prodId or random
     try {
         const response = await fetch(url);
         const data = await response.json();
-        // console.log('Running prodId: ' + prodId);
 
         if (prodId > 0) {
-            displayProduct(data[0], prodId);
+            displayProduct(data[0], prodId);  // Show detailed data
             localStorage.setItem( STORAGE_NAME, JSON.stringify(['data', prodId]) );
         } else {
-            displayProductCard(data[0]);
+            displayProductCard(data[0]);  // Show card
             localStorage.setItem( STORAGE_NAME, JSON.stringify(['product']) );
         }
-
-        
     } catch (error) {
         console.error('Error: ', error);
     } finally {
@@ -215,8 +177,7 @@ function displayProductCard(product) {
     // console.log(`--> displayProduct(product) => ${product.name}`);
     // console.log('product:', product);
 
-    // image is not always provided
-    const imagePath = (product.image_url) ? product.image_url : '';
+    const imagePath = (product.image_url) ? product.image_url : '';  // image is not always provided
         
     // Show random as card
     let articleInner = `
@@ -226,12 +187,9 @@ function displayProductCard(product) {
                 <p>${product.tagline}</p> 
                 <p>${product.abv}% alcohol</p> 
                 <p>
-                    
                     <a href="" data-id="${product.id}" title='Se more about this beer'>See More <i class="fas fa-play"></i></a>
                 </p>
             </div>`;
-    // console.log('article:', articleInner);
-     
     mainProduct.innerHTML = articleInner;
 
     scrollToTop();
@@ -243,32 +201,19 @@ function displayProduct(product, prodId = 0) {
     // console.log('product:', product);
     
     if (prodId >= 1) {  // Show selected product
-        const imagePath = (product.image_url) ? product.image_url : '';
-
+        const imagePath = (product.image_url) ? product.image_url : '';  // Not always present
         const volume = product.volume.value + ' ' + product.volume.unit;
-        // console.log('volume: ' + volume);
-
         const alcohol = product.abv + "%";
-
         const hops = extractObjectNames(product.ingredients.hops);
-        // console.log('hops', hops.join(', '));
-
         const ingredients = Object.keys(product.ingredients);
-        // console.log('ingredients: ', ingredients);
-        
         const foodPairing = Object.values(product.food_pairing);
-        // console.log('foodPairing', foodPairing);
 
         let article = `
-            
                 <img src="${imagePath}" alt="${product.name}">
                 <div class="card-content">
                     <h4 title="${product.name}">${product.name}</h4> 
-
                     <div class="list">
-                        <div>
-                            ${product.description}
-                        </div>
+                        <div>${product.description}</div>
                         <div>
                             <div class="label">Ingredients:</div>
                             ${ingredients.join(', ')}
@@ -297,34 +242,30 @@ function displayProduct(product, prodId = 0) {
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
-        // productData
+                </div>`;
         productData.innerHTML = article;
-        
-        scrollToTop();
 
+        scrollToTop();
         switchView('data');
     }
 }
 
-/* ###### Search ###### */
 function clickPreviousPage() {
     if (searchResults.children.length && !arrowPrevious.classList.contains('inactive') ) {
-        fetchSearchResults(actPage - 1);  // searchResults
+        showSearchResult(actPage - 1);
     }
 }
 
 function clickNextPage() {  
     if (searchResults.children.length && !arrowNext.classList.contains('inactive') ) {
-        fetchSearchResults(actPage + 1);
+        showSearchResult(actPage + 1);
     }
 }
 
 function updateSearchNav(page = 0, more = false) {  // actPage, more
-    // console.log(`--> updateSearchNav(${page}, ${more})`);
+     console.log(`--> updateSearchNav(${page}, ${more})`);
     
-    const searchNavigaton = document.querySelector('.search-navigation');
+    const searchNavigaton = document.querySelector('.search-navigation');  // buttons under search-result
     
     if (page > 0) {
         searchNavigaton.classList.add('active');
@@ -345,11 +286,10 @@ function updateSearchNav(page = 0, more = false) {  // actPage, more
     }
 }
 
-
-
-async function fetchSearchResults(newPageNbr = 0) {  // value only from arrows!
-    // console.log(`--> fetchSearchResults(${newPageNbr}) actPage: ` + actPage);
+async function showSearchResult(newPageNbr = 0) {
+    // console.log(`--> showSearchResult(${newPageNbr})`);
     // console.log(`searchString: '${searchString}'`);  // global
+    
     let hasMore = false;
     const input = form.querySelector('input');
 
@@ -363,33 +303,44 @@ async function fetchSearchResults(newPageNbr = 0) {  // value only from arrows!
         searchString = input.value.trim();
         newPageNbr = 1;
     }
-    // console.log('- using newPageNbr: '+ newPageNbr);
-    
-    let url = `https://api.punkapi.com/v2/beers?page=${newPageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
-    // console.log('url: ' + url);
+    if (searchString) {
+        const data = await fetchSearchResult(newPageNbr, searchString);  // Get search results
+        // console.log('- got data: ', data);
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        // console.log('data: ', data);
-
-        // Check if there are more search results...
-        hasMore = await isMoreResults(searchString, newPageNbr);  // Get data for navigations arrows
-
+        if (data) {  // Check if there are more search results...
+            hasMore = await isMoreResults(searchString, newPageNbr);  // Get data for navigations arrows
+        }
+        // console.log('- hasMore: ' + hasMore);
+        
         displaySearchResults(data);  // Show result
-    } catch (error) {
-        console.error('Error: ', error);
-    } finally {
+
         // console.log(`hasMore 2: ${hasMore}`);
         updateSearchNav(newPageNbr, hasMore);  // Update page navigation
-        loader.classList.remove('active');
     }
+
+    loader.classList.remove('active');
 
     actPage = newPageNbr;  // Store page number global
     // console.log('actPage: ' + actPage);
 
     // Store data
     localStorage.setItem( STORAGE_NAME, JSON.stringify([STORE_SEARCH, searchString, newPageNbr]) );
+}
+
+async function fetchSearchResult(newPageNbr, searchString) {
+    let data;
+    let url = `https://api.punkapi.com/v2/beers?page=${newPageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
+    // console.log('url: ' + url);
+
+    try {
+        const response = await fetch(url);
+        data = await response.json();
+        // console.log('data: ', data);
+    } catch (error) {
+        console.error('Error: ', error);
+    }
+
+    return data;
 }
 
 async function isMoreResults(searchString, pageNbr) {
@@ -425,39 +376,9 @@ async function isMoreResults(searchString, pageNbr) {
         }
     }
 
-
-    // console.log(`=> hasMore: ${hasMore}`);
+    // console.log(` isMoreResults() => hasMore: ${hasMore}`);
     return hasMore;
 }
-
-
-
-async function isMoreResults_2(searchString, pageNbr) {
-    // console.log(`--> isMoreResults_2(${searchString}, ${pageNbr})`);
-    let hasMore = false;
-    /*  // page = (pageNbr * MAX_SEARCH) + 1
-        pageNbr 1: https://api.punkapi.com/v2/beers?page=11&per_page=1&beer_name=beer
-        
-        pageNbr 2: https://api.punkapi.com/v2/beers?page=21&per_page=1&beer_name=beer
-    */
-
-    const nbr = pageNbr * MAX_SEARCH + 1;  // Create fictive page number
-    const url = `https://api.punkapi.com/v2/beers?page=${nbr}&per_page=1&beer_name=${searchString}`;
-    // console.log(`url: ${url}`);
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        // console.log('Next data: ', data);
-        hasMore = (data.length > 0) ? true : false;
-    } catch (error) {
-        console.error('Error:', error);
-    }
-
-    return hasMore;
-}
-
-
 
 function displaySearch(arr = undefined) {
     // console.log('--> displaySearch() searchString: ' + searchString);
@@ -483,7 +404,6 @@ function displaySearchResults(results) {
 
 
 function scrollToTop() {
-    // console.log('--> scrollToTop()');
     window.scrollTo({
         top: 0,
         left: 0,
@@ -493,20 +413,11 @@ function scrollToTop() {
 
 function switchView(sectionName) {
     // console.log(`--> switchView(${sectionName})`);
-
-    if (sectionName !== 'search') {
-        // searchString = '';
-        // console.log(`- emptying 'searchString': ${searchString}`);
-    }
-
     for (let i = 0; i < display.children.length; i++) {
         const item = display.children[i];
-        // console.log('id: ' + item.id);
 
         if (item.id === sectionName) {
             item.classList.add('show');
-            // console.log('- show ' + sectionName);
-            // localStorage.setItem(STORE_VIEW, sectionName);
         }
         else if (item.id != '') {
             item.classList.remove('show');
@@ -515,8 +426,6 @@ function switchView(sectionName) {
 }
 
 function extractObjectNames(arr) {
-    // array wit objects
-    // const arr = student.subjects.map( (s) => s.name);
     const newArr = arr.map( (o) => o.name );
     return newArr;
 }
