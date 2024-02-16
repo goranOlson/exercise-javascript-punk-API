@@ -325,13 +325,20 @@ a {
     text-align: center;
     /* background: #aaa; */
 }
+#search .search-navigation .pager:hover {
+    cursor: pointer;
+}
 
 #search .search-navigation .pager.nbr {
     font-weight: bold;
+    cursor: default;
 }
 
 #search .search-navigation .pager.inactive {
     color: #aaa;
+}
+#search .search-navigation .pager.inactive:hover {
+    cursor: default;
 }
 
 
