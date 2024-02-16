@@ -294,13 +294,16 @@ a {
     padding-inline: 16px;
     padding-block: 8px;
     background-color: #f4f402;
+    border: 1px solid transparent;
     border-radius: 7px;
     color: #222;
 }
 
-#search .search-results .link:hover {
+#search .search-results .link:hover,
+#search .search-results .link.active {
     cursor: pointer;
     background-color: #dada05;
+    border: 1px solid #848400;
 }
 
 #search .search-navigation {
