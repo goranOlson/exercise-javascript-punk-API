@@ -43,16 +43,18 @@ searchResults.addEventListener('click', (event) => {
     // console.log('click searchResult. Result id: ' + event.target.dataset.id);
     const target = event.target; 
 
-    // inactivate previous link
-    const activeLink = searchResults.querySelector('.link.active');
-    if (activeLink) {
-        activeLink.classList.remove('active');
+    if (target.classList.contains('link')) {  // Click on link?
+        // inactivate previous link
+        const activeLink = searchResults.querySelector('.link.active');
+        if (activeLink) {
+            activeLink.classList.remove('active');
+        }
+
+        // active new link
+        target.classList.add('active');
+
+        showProduct(target.dataset.id);
     }
-
-    // active new link
-    target.classList.add('active');
-
-    showProduct(target.dataset.id);
 });
 
 /* ###### Icons/logotype ###### */
@@ -103,12 +105,9 @@ const loader = document.querySelector('#display .loader');
 
 
 /* ###### Init system ###### */
-// view
+
 const initData = getLocalStorageData();
 // console.log('initData:', initData);
-
-// console.log('script start');
-// importProduct();  // Default start with random beer
 
 const view = (initData) ? initData[0] : 'product';
 // console.log('view: ' + view);
@@ -134,10 +133,6 @@ switch (view) {
         showProduct();
         break;
 }
-
-// displaySearch();
-
-
 
 function getLocalStorageData() {
     // STORAGE_NAME: 
@@ -177,7 +172,6 @@ async function showProduct(prodId = 0) {
     }
 
 }
-
 
 function displayProductCard(product) {
     // console.log(`--> displayProduct(product) => ${product.name}`);
@@ -269,7 +263,7 @@ function clickNextPage() {
 }
 
 function updateSearchNav(page = 0, more = false) {  // actPage, more
-    // console.log(`--> updateSearchNav(${page}, ${more})`);
+     console.log(`--> updateSearchNav(${page}, ${more})`);
     
     const searchNavigaton = document.querySelector('.search-navigation');  // buttons under search-result
     
@@ -309,19 +303,21 @@ async function showSearchResult(newPageNbr = 0) {
         searchString = input.value.trim();
         newPageNbr = 1;
     }
+    if (searchString) {
+        const data = await fetchSearchResult(newPageNbr, searchString);  // Get search results
+        // console.log('- got data: ', data);
 
-    const data = await fetchSearchResult(newPageNbr, searchString);  // Get search results
-    // console.log('- got data: ', data);
+        if (data) {  // Check if there are more search results...
+            hasMore = await isMoreResults(searchString, newPageNbr);  // Get data for navigations arrows
+        }
+        // console.log('- hasMore: ' + hasMore);
+        
+        displaySearchResults(data);  // Show result
 
-    if (data) {  // Check if there are more search results...
-        hasMore = await isMoreResults(searchString, newPageNbr);  // Get data for navigations arrows
+        // console.log(`hasMore 2: ${hasMore}`);
+        updateSearchNav(newPageNbr, hasMore);  // Update page navigation
     }
-    // console.log('- hasMore: ' + hasMore);
-    
-    displaySearchResults(data);  // Show result
 
-    // console.log(`hasMore 2: ${hasMore}`);
-    updateSearchNav(newPageNbr, hasMore);  // Update page navigation
     loader.classList.remove('active');
 
     actPage = newPageNbr;  // Store page number global
