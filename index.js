@@ -102,15 +102,15 @@ const view = (initData) ? initData[0] : 'product';
 switch (view) {
     case 'data':  // Product details
         const prodId = (initData[1]) ? initData[1] : 0;
-        console.log('# Show data: ' + prodId);
+         console.log('# Show data: ' + prodId);
         importProduct(prodId);
         break;
     case 'product':  // Product card
-        console.log('# Show product');
+         console.log('# Show product');
         importProduct();
         break;
     case 'search':  // Search
-        console.log('# Show search');
+         console.log('# Show search');
         displaySearch();
         break;
     default:
@@ -340,7 +340,90 @@ function updateSearchNav(page = 0, more = false) {  // actPage, more
     }
 }
 
-async function importSearch(pageNbr = 0) {  // value only from arrows!
+
+
+async function importSearch(newPageNbr = 0) {  // value only from arrows!
+    // console.log(`--> importSearch(${pageNbr}) actPage: ` + pageNbr);
+    // console.log(`searchString: '${searchString}'`);  // global
+    updateSearchNav();  // Empty previous result
+
+    const input = form.querySelector('input');
+
+    // loader?
+    loader.classList.add('active');
+    
+    let url;  // = `https://api.punkapi.com/v2/beers?page=${pageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
+    let hasMore = false;
+    
+    if (newPageNbr > 0) {  // Previous/next page
+        input.value = searchString;  // Set input to remove changes
+    }
+    else {  // New search
+        searchString = input.value.trim();
+        newPageNbr = 1;
+    }
+    
+    url = `https://api.punkapi.com/v2/beers?page=${newPageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
+    // console.log('url: ' + url);
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        // console.log('data: ', data);
+
+        // Check if there are more search results...
+        if (newPageNbr > actPage && data.length >= MAX_SEARCH) {  
+            // console.log('Check for more results...');
+            hasMore = await searchMoreResults(searchString, newPageNbr);
+            // console.log(`hasMore: ${hasMore}`);
+        }
+        displaySearchResults(data);  // Show result
+    } catch (error) {
+        console.error('Error: ', error);
+    } finally {
+        console.log(`hasMore 2: ${hasMore}`);
+        updateSearchNav(newPageNbr, hasMore);  // Update page navigation
+        loader.classList.remove('active');
+    }
+
+    if (newPageNbr > 0) {
+        actPage = (newPageNbr > 0) ? newPageNbr : 1;
+    }
+    actPage = newPageNbr;
+    // console.log('actPage: ' + actPage);
+
+    // localStorage.setItem(STORE_PAGE, actPage);
+    // localStorage.setItem(STORE_SEARCH, url);
+
+}
+
+async function searchMoreResults(searchString, pageNbr) {
+    // console.log(`--> searchMoreResults(${searchString}, ${pageNbr})`);
+    let hasMore = false;
+    /*  // page = (pageNbr * MAX_SEARCH) + 1
+        pageNbr 1: https://api.punkapi.com/v2/beers?page=11&per_page=1&beer_name=beer
+        
+        pageNbr 2: https://api.punkapi.com/v2/beers?page=21&per_page=1&beer_name=beer
+    */
+
+    const nbr = pageNbr * MAX_SEARCH + 1;  // Create fictive page number
+    const url = `https://api.punkapi.com/v2/beers?page=${nbr}&per_page=1&beer_name=${searchString}`;
+    // console.log(`url: ${url}`);
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        // console.log('Next data: ', data);
+        hasMore = (data.length > 0) ? true : false;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+
+    return hasMore;
+}
+
+
+async function importSearch_2(pageNbr = 0) {  // value only from arrows!
     // console.log(`--> importSearch(${pageNbr}) actPage: ` + pageNbr);
 
     updateSearchNav();  // Empty previous result
@@ -417,7 +500,14 @@ function displaySearch(arr = undefined) {
     scrollToTop();
 }
 
-
+function displaySearchResults(results) {
+     console.log(`--> displaySearchResults(${results.length})`);
+    for (let i = 0; i < results.length; i++) {
+        const item = results[i];
+        const element = `<div class="link" data-id="${item.id}">${item.name}</div>`;
+        searchResults.insertAdjacentHTML('beforeend', element);
+    }
+}
 
 
 
