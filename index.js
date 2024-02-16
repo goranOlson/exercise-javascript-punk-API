@@ -39,9 +39,23 @@ form.addEventListener('submit', (event) => {
 });
 
 const searchResults = document.querySelector('.search-results');
+searchResults.addEventListener('click', (event) => {
+    // console.log('click searchResult. Result id: ' + event.target.dataset.id);
+    const target = event.target; 
+
+    // inactivate previous link
+    const activeLink = searchResults.querySelector('.link.active');
+    if (activeLink) {
+        activeLink.classList.remove('active');
+    }
+
+    // active new link
+    target.classList.add('active');
+
+    importProduct(target.dataset.id);
+});
 
 /* ###### Icons/logotype ###### */
-
 const logotype = document.getElementById('logotype');
 logotype.addEventListener('click', () => {
     // console.log('logotype');
