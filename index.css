@@ -266,6 +266,12 @@ a {
     border: 1px solid #c3c303;
 }
 
+#search .form-container input:focus {
+    /* border: 1px solid #c3c303; */
+    outline: 1px solid transparent;
+    border: 1px solid #444;
+}
+
 #search .form-container button {
     background-color: yellow;
     border: 0px solid yellow;
@@ -403,13 +409,14 @@ a {
         font-size: 30px;
     }
 
-    .product {
+    .product.card {
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto;
         align-items: center;
         height: auto;
         min-height: 570px;
         padding-block: 20px;
+        max-width: 920px;
     }
     
     .product img {

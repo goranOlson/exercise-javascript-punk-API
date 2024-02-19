@@ -1,111 +1,29 @@
-const MAX_SEARCH = 10;
-
-const STORAGE_NAME = 'punk_api';
-const STORE_VIEW = 'view';  // search
-const STORE_PAGE = 'page';  // page nbr
-const STORE_PRODUCT = 0;  // product id
-const STORE_SEARCH = 'search';  // search
-
+/* ###### Imports ###### */
+import {
+    BASE_URL,
+    MAX_SEARCH,
+    STORAGE_NAME,
+    STORE_SEARCH,
+    mainProduct,
+    productData,
+    display,
+    form,
+    searchResults,
+    logotype,
+    iconHome,
+    iconSearch,
+    seeMoreButton,
+    randomButton,
+    arrowPrevious,
+    arrowNext,
+    loader
+} from './constants.js';
 
 let actPage = 0;
 let searchString = '';
 
-const mainProduct = document.getElementById('main-product');
-mainProduct.addEventListener('click', (event) => {
-    // console.log('click on article');
-    if (event.target.tagName === "A") {
-        // console.log('click on seeMore');
-        event.preventDefault();
-        event.stopPropagation();
-
-        // const target = event.target;
-        const id = event.target.getAttribute('data-id');
-        // console.log('id: ' + id);
-        showProduct(id);
-    }
-
-});
-
-const productData = document.getElementById('product-data');
-
-const display = document.getElementById('display');
-
-const form = document.querySelector('form');
-form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    showSearchResult();
-});
-
-const searchResults = document.querySelector('.search-results');
-searchResults.addEventListener('click', (event) => {
-    // console.log('click searchResult. Result id: ' + event.target.dataset.id);
-    const target = event.target; 
-
-    if (target.classList.contains('link')) {  // Click on link?
-        // inactivate previous link
-        const activeLink = searchResults.querySelector('.link.active');
-        if (activeLink) {
-            activeLink.classList.remove('active');
-        }
-
-        // active new link
-        target.classList.add('active');
-
-        showProduct(target.dataset.id);
-    }
-});
-
-/* ###### Icons/logotype ###### */
-const logotype = document.getElementById('logotype');
-logotype.addEventListener('click', () => {
-    // console.log('logotype');
-    showProduct();
-});
-
-const iconHome = document.getElementById('icon_home');
-iconHome.addEventListener('click', () => {
-    // console.log('iconHome');
-    showProduct();
-});
-
-const iconSearch = document.getElementById('icon_search');
-iconSearch.addEventListener('click', () => {
-    // console.log('iconSearch');
-    displaySearch();
-});
-
-
-const seeMoreButton = document.querySelector('#main-product a');
-if (seeMoreButton) {
-    // console.log('adding listener to seeMoreButton');
-    seeMoreButton.addEventListener('click', (event) => {
-        event.stopPropagation();
-        //console.log('seMoreButton()');
-    });
-}
-
-const randomButton = document.querySelector("#display > button");
-randomButton.addEventListener('click', () => {
-    // console.log('moreButton');
-    showProduct();
-});
-
-const arrowPrevious = document.querySelector('.pager.left');
-arrowPrevious.addEventListener('click', clickPreviousPage);
-
-const arrowNext = document.querySelector('.pager.right');
-arrowNext.addEventListener('click', clickNextPage);
-
-const loader = document.querySelector('#display .loader');
-
-
-
-
 
 /* ###### Init system ###### */
-
 const initData = getLocalStorageData();
 // console.log('initData:', initData);
 
@@ -115,18 +33,16 @@ const view = (initData) ? initData[0] : 'product';
 switch (view) {
     case 'data':  // Product details
         const prodId = (initData[1]) ? initData[1] : 0;
-        // console.log('# Show data: ' + prodId);
         showProduct(prodId);
         break;
     case 'product':  // Product card
-        // console.log('# Show product');
         showProduct();
         break;
     case 'search':  // Search
         searchString = (initData[1]) ? initData[1] : '';
         actPage = (initData[2]) ? initData[2] : 0;
-        // console.log(`# Show search: '${searchString}',  ${actPage}`);
         displaySearch();
+        showSearchResult(actPage);
         break;
     default:
         // console.error('Bad view');
@@ -134,11 +50,59 @@ switch (view) {
         break;
 }
 
+/* ###### Set listener ###### */
+mainProduct.addEventListener('click', (event) => {
+    if (event.target.tagName === "A") {
+        event.preventDefault();
+        event.stopPropagation();
+
+        showProduct( event.target.getAttribute('data-id') );
+    }
+});
+
+form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    showSearchResult();
+});
+
+searchResults.addEventListener('click', (event) => {
+    const target = event.target; 
+
+    if (target.classList.contains('link')) {  // Click on link?        
+        const activeLink = searchResults.querySelector('.link.active');  // inactivate previous link
+        if (activeLink) {
+            activeLink.classList.remove('active');
+        }
+        target.classList.add('active');  // active new link
+
+        showProduct(target.dataset.id);
+    }
+});
+
+logotype.addEventListener('click', showProduct);
+iconHome.addEventListener('click', showProduct);
+iconSearch.addEventListener('click', displaySearch);
+randomButton.addEventListener('click', showProduct);
+arrowPrevious.addEventListener('click', clickPreviousPage);
+arrowNext.addEventListener('click', clickNextPage);
+
+if (seeMoreButton) {  // IF product is shown - it's a link
+    seeMoreButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+    });
+}
+
+
+
+
+/* ###### Functions ###### */
 function getLocalStorageData() {
     // STORAGE_NAME: 
-    // ['search', [string]]
-    // ['data', 102]
-    // ['product'] || ['product', 102]
+    // ['search', [searchString], [page]] - search with search and page
+    // ['data', 102] - more info about certain product
+    // ['product'] - random product 
 
     const arr = JSON.parse( localStorage.getItem(STORAGE_NAME) );
 
@@ -149,9 +113,8 @@ async function showProduct(prodId = 0) {
     // console.log(`--> showProduct(${prodId})`);
     loader.classList.add('active');
     
-    let url = "https://api.punkapi.com/v2/beers/";
+    let url = BASE_URL + "/";  // "https://api.punkapi.com/v2/beers/";
     url += (prodId >= 1) ? prodId : "random";
-    // console.log('url: ' + url);
 
     // Fetch data for prodId or random
     try {
@@ -172,6 +135,7 @@ async function showProduct(prodId = 0) {
     }
 
 }
+
 
 function displayProductCard(product) {
     // console.log(`--> displayProduct(product) => ${product.name}`);
@@ -263,8 +227,6 @@ function clickNextPage() {
 }
 
 function updateSearchNav(page = 0, more = false) {  // actPage, more
-     console.log(`--> updateSearchNav(${page}, ${more})`);
-    
     const searchNavigaton = document.querySelector('.search-navigation');  // buttons under search-result
     
     if (page > 0) {
@@ -287,9 +249,6 @@ function updateSearchNav(page = 0, more = false) {  // actPage, more
 }
 
 async function showSearchResult(newPageNbr = 0) {
-    // console.log(`--> showSearchResult(${newPageNbr})`);
-    // console.log(`searchString: '${searchString}'`);  // global
-    
     let hasMore = false;
     const input = form.querySelector('input');
 
@@ -310,18 +269,13 @@ async function showSearchResult(newPageNbr = 0) {
         if (data) {  // Check if there are more search results...
             hasMore = await isMoreResults(searchString, newPageNbr);  // Get data for navigations arrows
         }
-        // console.log('- hasMore: ' + hasMore);
-        
         displaySearchResults(data);  // Show result
-
-        // console.log(`hasMore 2: ${hasMore}`);
         updateSearchNav(newPageNbr, hasMore);  // Update page navigation
     }
 
-    loader.classList.remove('active');
+    loader.classList.remove('active');  // Hide loader
 
     actPage = newPageNbr;  // Store page number global
-    // console.log('actPage: ' + actPage);
 
     // Store data
     localStorage.setItem( STORAGE_NAME, JSON.stringify([STORE_SEARCH, searchString, newPageNbr]) );
@@ -329,7 +283,7 @@ async function showSearchResult(newPageNbr = 0) {
 
 async function fetchSearchResult(newPageNbr, searchString) {
     let data;
-    let url = `https://api.punkapi.com/v2/beers?page=${newPageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
+    let url = BASE_URL + `?page=${newPageNbr}&per_page=${MAX_SEARCH}&beer_name=${searchString}`;
     // console.log('url: ' + url);
 
     try {
@@ -353,36 +307,28 @@ async function isMoreResults(searchString, pageNbr) {
     */
 
     const nbr = pageNbr * MAX_SEARCH + 1;  // Create fictive page number
-    const url = `https://api.punkapi.com/v2/beers?page=${nbr}&per_page=1&beer_name=${searchString}`;
-    // console.log(`url: ${url}`);
+    const url = BASE_URL + `?page=${nbr}&per_page=1&beer_name=${searchString}`;
 
     if (pageNbr < actPage && pageNbr >= 0) {  // Previous page
         hasMore = true;
-        // console.log('- going down...');
     }
     else {
-        // console.log('- check if more...');
         const nbr = pageNbr * MAX_SEARCH + 1;  // Create fictive page number
-        const url = `https://api.punkapi.com/v2/beers?page=${nbr}&per_page=1&beer_name=${searchString}`;
-        // console.log(`url: ${url}`);
+        const url = BASE_URL +  `?page=${nbr}&per_page=1&beer_name=${searchString}`;
 
         try {
             const response = await fetch(url);
             const data = await response.json();
-            // console.log('Next data: ', data);
             hasMore = (data.length > 0) ? true : false;
         } catch (error) {
             console.error('Error:', error);
         }
     }
 
-    // console.log(` isMoreResults() => hasMore: ${hasMore}`);
     return hasMore;
 }
 
 function displaySearch(arr = undefined) {
-    // console.log('--> displaySearch() searchString: ' + searchString);
-    // console.log('arr:', arr);
     localStorage.setItem( STORAGE_NAME, JSON.stringify([STORE_SEARCH, searchString, 1]) );
     switchView('search');
     if (searchString) {
@@ -399,9 +345,6 @@ function displaySearchResults(results) {
         searchResults.insertAdjacentHTML('beforeend', element);
     }
 }
-
-
-
 
 function scrollToTop() {
     window.scrollTo({
